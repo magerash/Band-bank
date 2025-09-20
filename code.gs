@@ -4,23 +4,6 @@
  */
 
 /**
- * Показать диалоговое окно для добавления записи
- */
-function showDialog() {
-  try {
-    const htmlOutput = HtmlService.createTemplateFromFile('dialog')
-      .evaluate()
-      .setWidth(500)
-      .setHeight(450)
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-    
-    SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Добавить новую запись');
-  } catch (error) {
-    SpreadsheetApp.getUi().alert('Ошибка при открытии диалога: ' + error.toString());
-  }
-}
-
-/**
  * Получить уникальные категории из именованного диапазона data_category
  */
 function getCategories() {
@@ -152,16 +135,89 @@ function saveRecord(data) {
     // Записываем данные в новую строку
     sheet.getRange(lastDataRow + 1, 1, 1, newRowData.length).setValues([newRowData]);
     
+    // СОРТИРУЕМ таблицу после добавления записи
+    sortTableByDate();
+    
+    // Возвращаем успешный результат с красивым форматированием
+    const monthYearDisplay = data.month + ' ' + data.year;
     return {
       success: true,
-      message: `✅ Запись добавлена в таблицу!`
+      message: `✅ Запись успешно добавлена!\n📁 Категория: ${data.category}\n💰 Сумма: ${data.amount}₽\n📅 Период: ${monthYearDisplay}${data.comment ? '\n💬 Комментарий: ' + data.comment : ''}`
     };
     
   } catch (error) {
+    console.log('Ошибка при сохранении записи: ' + error.toString());
     return {
       success: false,
-      message: 'Ошибка: ' + error.toString()
+      message: 'Ошибка при сохранении: ' + error.toString()
     };
+  }
+}
+
+/**
+ * Сортировать таблицу Банк_группы по столбцу Дата (от новых к старым)
+ */
+function sortTableByDate() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName("Операции");
+    
+    if (!sheet) {
+      console.log('Лист "Операции" не найден');
+      return;
+    }
+    
+    // Получаем все данные с листа
+    const dataRange = sheet.getDataRange();
+    const values = dataRange.getValues();
+    
+    // Находим строку с заголовками и столбец "Дата"
+    let headerRow = -1;
+    let dateCol = -1;
+    
+    for (let i = 0; i < values.length; i++) {
+      const row = values[i];
+      const dateIndex = row.indexOf('Дата');
+      
+      if (dateIndex !== -1) {
+        headerRow = i;
+        dateCol = dateIndex;
+        break;
+      }
+    }
+    
+    if (headerRow === -1 || dateCol === -1) {
+      console.log('Столбец "Дата" не найден');
+      return;
+    }
+    
+    // Находим диапазон данных для сортировки (исключая заголовок)
+    let lastDataRow = headerRow + 1;
+    for (let i = headerRow + 1; i < values.length; i++) {
+      // Проверяем, есть ли данные в строке
+      if (values[i].some(cell => cell !== '')) {
+        lastDataRow = i + 1; // +1 так как индексы в getRange начинаются с 1
+      } else {
+        break; // Прекращаем, если встретили полностью пустую строку
+      }
+    }
+    
+    // Если есть данные для сортировки
+    if (lastDataRow > headerRow + 1) {
+      // Диапазон для сортировки (headerRow + 2 потому что индексация с 1 и пропускаем заголовок)
+      const sortRange = sheet.getRange(headerRow + 2, 1, lastDataRow - headerRow - 1, sheet.getLastColumn());
+      
+      // Сортируем по столбцу Дата (dateCol + 1 потому что индексация столбцов с 1)
+      sortRange.sort({
+        column: dateCol + 1,
+        ascending: false // false = от новых к старым (Z > A)
+      });
+    }
+    
+    console.log('Таблица отсортирована по дате');
+    
+  } catch (error) {
+    console.log('Ошибка при сортировке: ' + error.toString());
   }
 }
 

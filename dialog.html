@@ -439,10 +439,18 @@
       const category = document.getElementById('category').value;
       const infoDiv = document.getElementById('paidMonthsInfo');
       const listDiv = document.getElementById('paidMonthsList');
+      const titleDiv = document.querySelector('.paid-months-title');
       
       if (!category) {
         infoDiv.classList.remove('show');
         return;
+      }
+      
+      // Меняем заголовок в зависимости от категории
+      if (category === 'Доходы' || category === 'Расходы') {
+        titleDiv.textContent = 'Операции:';
+      } else {
+        titleDiv.textContent = 'Оплаченные месяцы:';
       }
       
       google.script.run
@@ -452,7 +460,7 @@
               `<span class="paid-month-tag">${month}</span>`
             ).join('');
           } else {
-            listDiv.innerHTML = '<span class="no-payments">Нет оплаченных месяцев</span>';
+            listDiv.innerHTML = '<span class="no-payments">Нет записей</span>';
           }
           infoDiv.classList.add('show');
         })
