@@ -306,6 +306,21 @@
       font-size: 28px;
       font-weight: bold;
     }
+
+    .choice-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .choice-dialog {
+        display: none;
+        text-align: center;
+        padding: 40px;
+        animation: scaleIn 0.5s ease-out;
+    }    
+
   </style>
 </head>
 <body>
@@ -370,6 +385,16 @@
       <div class="success-icon"></div>
       <div class="loading-text">Запись успешно добавлена!</div>
     </div>
+
+    <div class="choice-dialog" id="choiceDialog">
+        <div class="success-icon"></div>
+        <div class="loading-text">Запись успешно добавлена!</div>
+        <div class="choice-buttons">
+            <button type="button" class="btn btn-secondary" onclick="addAnother()">Добавить ещё</button>
+            <button type="button" class="btn btn-primary" onclick="closeDialog()">Выйти</button>
+        </div>
+    </div>    
+
   </div>
 
   <script>
@@ -379,6 +404,9 @@
       loadMonths();
       setCurrentYear();
     };
+
+    let lastSelectedCategory = '';
+    let paidMonthsList = [];
 
     // Загрузка категорий
     function loadCategories() {
@@ -436,40 +464,46 @@
 
     // Обновление информации об оплаченных месяцах
     function updatePaidMonths() {
-      const category = document.getElementById('category').value;
-      const infoDiv = document.getElementById('paidMonthsInfo');
-      const listDiv = document.getElementById('paidMonthsList');
-      const titleDiv = document.querySelector('.paid-months-title');
-      
-      if (!category) {
-        infoDiv.classList.remove('show');
-        return;
-      }
-      
-      // Меняем заголовок в зависимости от категории
-      if (category === 'Доходы' || category === 'Расходы') {
-        titleDiv.textContent = 'Операции:';
-      } else {
-        titleDiv.textContent = 'Оплаченные месяцы:';
-      }
-      
-      google.script.run
-        .withSuccessHandler(function(paidMonths) {
-          if (paidMonths && paidMonths.length > 0) {
-            listDiv.innerHTML = paidMonths.map(month => 
-              `<span class="paid-month-tag">${month}</span>`
-            ).join('');
-          } else {
-            listDiv.innerHTML = '<span class="no-payments">Нет записей</span>';
-          }
-          infoDiv.classList.add('show');
-        })
-        .withFailureHandler(function(error) {
-          console.error('Ошибка загрузки оплаченных месяцев:', error);
-          listDiv.innerHTML = '<span class="no-payments">Ошибка загрузки</span>';
-          infoDiv.classList.add('show');
-        })
-        .getPaidMonths(category);
+        const category = document.getElementById('category').value;
+        const infoDiv = document.getElementById('paidMonthsInfo');
+        const listDiv = document.getElementById('paidMonthsList');
+        const titleDiv = document.querySelector('.paid-months-title');
+        
+        // Сохраняем выбранную категорию
+        lastSelectedCategory = category;
+        
+        if (!category) {
+            infoDiv.classList.remove('show');
+            return;
+        }
+        
+        // Меняем заголовок в зависимости от категории
+        if (category.includes('Доходы') || category.includes('Расходы')) {
+            titleDiv.textContent = 'Операции:';
+        } else {
+            titleDiv.textContent = 'Оплаченные месяцы:';
+        }
+        
+        google.script.run
+            .withSuccessHandler(function(paidMonths) {
+                // Сохраняем список оплаченных месяцев
+                paidMonthsList = paidMonths;
+                
+                if (paidMonths && paidMonths.length > 0) {
+                    listDiv.innerHTML = paidMonths.map(month => 
+                        `<span class="paid-month-tag">${month}</span>`
+                    ).join('');
+                } else {
+                    listDiv.innerHTML = '<span class="no-payments">Нет записей</span>';
+                }
+                infoDiv.classList.add('show');
+            })
+            .withFailureHandler(function(error) {
+                console.error('Ошибка загрузки оплаченных месяцев:', error);
+                listDiv.innerHTML = '<span class="no-payments">Ошибка загрузки</span>';
+                infoDiv.classList.add('show');
+            })
+            .getPaidMonths(category);
     }
 
     // Обработка отправки формы
@@ -535,17 +569,77 @@
 
     // Показать успешное сохранение
     function showSuccess(message) {
-      const loading = document.getElementById('loading');
-      const success = document.getElementById('successAnimation');
-      
-      loading.style.display = 'none';
-      success.style.display = 'block';
-      
-      setTimeout(function() {
-        google.script.host.close();
-      }, 1500);
+        const loading = document.getElementById('loading');
+        const choice = document.getElementById('choiceDialog');
+        
+        loading.style.display = 'none';
+        choice.style.display = 'block';
     }
 
+    function addAnother() {
+        // Сброс формы
+        document.getElementById('recordForm').reset();
+        setCurrentYear();
+        
+        // Показать форму, скрыть диалог выбора
+        document.getElementById('recordForm').style.display = 'block';
+        document.getElementById('choiceDialog').style.display = 'none';
+        
+        // Обновить информацию о оплаченных месяцах
+        updatePaidMonths();
+    }    
+
+    function addAnother() {
+        // Сброс формы
+        document.getElementById('recordForm').reset();
+        
+        // Убедимся, что кнопка активна
+        document.getElementById('saveBtn').disabled = false;
+        
+        // Восстанавливаем выбранную категорию
+        if (lastSelectedCategory) {
+            document.getElementById('category').value = lastSelectedCategory;
+        }
+        
+        setCurrentYear();
+        
+        // Показать форму, скрыть диалог выбора
+        document.getElementById('recordForm').style.display = 'block';
+        document.getElementById('choiceDialog').style.display = 'none';
+        
+        // Обновить информацию о оплаченных месяцах
+        updatePaidMonths();
+        
+        // Установить следующий месяц
+        setNextMonth();
+    }
+
+    // Установить следующий месяц после последнего оплаченного
+    function setNextMonth() {
+        // Если нет оплаченных месяцев, оставляем текущий
+        if (!paidMonthsList || paidMonthsList.length === 0) return;
+        
+        // Получаем последний оплаченный месяц (первый в отсортированном списке)
+        const lastPaidMonth = paidMonthsList[0];
+        const [lastMonth, lastYear] = lastPaidMonth.split(' ');
+        
+        const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 
+                            'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+        
+        let nextMonthIndex = monthNames.indexOf(lastMonth) + 1;
+        let nextYear = parseInt(lastYear);
+        
+        // Если текущий месяц - декабрь, переходим к январю следующего года
+        if (nextMonthIndex >= 12) {
+            nextMonthIndex = 0;
+            nextYear++;
+        }
+        
+        // Устанавливаем значения
+        document.getElementById('month').value = monthNames[nextMonthIndex];
+        document.getElementById('year').value = nextYear;
+    }
+    
     // Закрыть диалог
     function closeDialog() {
       google.script.host.close();
