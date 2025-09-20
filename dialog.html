@@ -497,6 +497,9 @@
                     listDiv.innerHTML = '<span class="no-payments">Нет записей</span>';
                 }
                 infoDiv.classList.add('show');
+                
+                // ОБНОВЛЯЕМ МЕСЯЦ ПОСЛЕ ЗАГРУЗКИ ДАННЫХ
+                setNextMonth();
             })
             .withFailureHandler(function(error) {
                 console.error('Ошибка загрузки оплаченных месяцев:', error);
@@ -577,17 +580,37 @@
     }
 
     function addAnother() {
-        // Сброс формы
-        document.getElementById('recordForm').reset();
-        setCurrentYear();
-        
-        // Показать форму, скрыть диалог выбора
-        document.getElementById('recordForm').style.display = 'block';
-        document.getElementById('choiceDialog').style.display = 'none';
-        
-        // Обновить информацию о оплаченных месяцах
-        updatePaidMonths();
-    }    
+        try {
+            // Сохраняем выбранную категорию
+            const categorySelect = document.getElementById('category');
+            lastSelectedCategory = categorySelect.value;
+            
+            // Сбрасываем форму, но сохраняем категорию
+            document.getElementById('recordForm').reset();
+            
+            // Восстанавливаем категорию
+            if (lastSelectedCategory) {
+                categorySelect.value = lastSelectedCategory;
+            }
+            
+            // Активируем кнопку сохранения
+            document.getElementById('saveBtn').disabled = false;
+            
+            // Устанавливаем текущий год
+            document.getElementById('year').value = new Date().getFullYear();
+            
+            // Показываем форму, скрываем диалог выбора
+            document.getElementById('recordForm').style.display = 'block';
+            document.getElementById('choiceDialog').style.display = 'none';
+            
+            // Обновляем информацию об оплаченных месяцах
+            // setNextMonth будет вызван автоматически в колбэке updatePaidMonths
+            updatePaidMonths();
+        } catch (error) {
+            console.error('Ошибка в addAnother:', error);
+            closeDialog();
+        }
+    }  
 
     function addAnother() {
         // Сброс формы
@@ -616,28 +639,54 @@
 
     // Установить следующий месяц после последнего оплаченного
     function setNextMonth() {
-        // Если нет оплаченных месяцев, оставляем текущий
-        if (!paidMonthsList || paidMonthsList.length === 0) return;
-        
-        // Получаем последний оплаченный месяц (первый в отсортированном списке)
-        const lastPaidMonth = paidMonthsList[0];
-        const [lastMonth, lastYear] = lastPaidMonth.split(' ');
-        
-        const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 
-                            'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-        
-        let nextMonthIndex = monthNames.indexOf(lastMonth) + 1;
-        let nextYear = parseInt(lastYear);
-        
-        // Если текущий месяц - декабрь, переходим к январю следующего года
-        if (nextMonthIndex >= 12) {
-            nextMonthIndex = 0;
-            nextYear++;
+        try {
+            const category = document.getElementById('category').value;
+            const monthSelect = document.getElementById('month');
+            const yearInput = document.getElementById('year');
+            
+            // Для категорий "Доходы" и "Расходы" используем текущий месяц
+            if (category.includes('Доходы') || category.includes('Расходы')) {
+                const currentDate = new Date();
+                const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 
+                                  'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+                monthSelect.value = monthNames[currentDate.getMonth()];
+                yearInput.value = currentDate.getFullYear();
+                return;
+            }
+            
+            // Для других категорий используем логику следующего месяца
+            if (!paidMonthsList || paidMonthsList.length === 0) {
+                // Если нет оплаченных месяцев, используем текущий
+                const currentDate = new Date();
+                const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 
+                                  'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+                monthSelect.value = monthNames[currentDate.getMonth()];
+                yearInput.value = currentDate.getFullYear();
+                return;
+            }
+            
+            // Получаем последний оплаченный месяц (первый в отсортированном списке)
+            const lastPaidMonth = paidMonthsList[0];
+            const [lastMonth, lastYear] = lastPaidMonth.split(' ');
+            
+            const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 
+                              'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+            
+            let nextMonthIndex = monthNames.indexOf(lastMonth) + 1;
+            let nextYear = parseInt(lastYear);
+            
+            // Если текущий месяц - декабрь, переходим к январю следующего года
+            if (nextMonthIndex >= 12) {
+                nextMonthIndex = 0;
+                nextYear++;
+            }
+            
+            // Устанавливаем значения
+            monthSelect.value = monthNames[nextMonthIndex];
+            yearInput.value = nextYear;
+        } catch (error) {
+            console.error('Ошибка в setNextMonth:', error);
         }
-        
-        // Устанавливаем значения
-        document.getElementById('month').value = monthNames[nextMonthIndex];
-        document.getElementById('year').value = nextYear;
     }
     
     // Закрыть диалог
