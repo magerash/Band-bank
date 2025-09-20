@@ -67,52 +67,227 @@ function getCurrentYear() {
 /**
  * Сохранить новую запись в таблицу
  */
+/**
+ * Сохранить новую запись в таблицу Банк_группы на листе Операции
+ */
+// function saveRecord(data) {
+//   try {
+//     const ss = SpreadsheetApp.getActiveSpreadsheet();
+    
+//     // Получаем лист "Операции"
+//     const sheet = ss.getSheetByName("Операции");
+//     if (!sheet) {
+//       throw new Error('Лист "Операции" не найден');
+//     }
+    
+//     // Подготавливаем данные для записи
+//     const currentDate = new Date();
+    
+//     // Преобразуем название месяца в число
+//     const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+//     const monthNumber = monthNames.indexOf(data.month) + 1;
+    
+//     // Создаем дату для месяца
+//     const monthDate = new Date(parseInt(data.year), monthNumber - 1, 1);
+    
+//     // Попробуем найти таблицу "Банк_группы" через именованный диапазон
+//     let tableRange;
+//     try {
+//       tableRange = ss.getRangeByName("Банк_группы");
+//     } catch (e) {
+//       // Если именованный диапазон не найден, ищем таблицу вручную
+//       console.log('Именованный диапазон "Банк_группы" не найден, ищем заголовки таблицы');
+//     }
+    
+//     if (tableRange) {
+//       // Работаем с именованным диапазоном как с таблицей
+//       const lastRow = tableRange.getLastRow();
+//       const firstColumn = tableRange.getColumn();
+//       const numColumns = tableRange.getNumColumns();
+      
+//       // Получаем заголовки для определения порядка столбцов
+//       const headers = sheet.getRange(tableRange.getRow(), firstColumn, 1, numColumns).getValues()[0];
+      
+//       // Находим индексы нужных столбцов
+//       const dateIndex = headers.indexOf('Дата');
+//       const categoryIndex = headers.indexOf('Категория');
+//       const amountIndex = headers.indexOf('Сумма');
+//       const monthIndex = headers.indexOf('Месяц');
+//       const commentIndex = headers.indexOf('Комментарий');
+      
+//       // Создаем массив для новой строки
+//       const newRow = new Array(numColumns).fill('');
+      
+//       if (dateIndex !== -1) newRow[dateIndex] = currentDate;
+//       if (categoryIndex !== -1) newRow[categoryIndex] = data.category;
+//       if (amountIndex !== -1) newRow[amountIndex] = parseFloat(data.amount);
+//       if (monthIndex !== -1) newRow[monthIndex] = monthDate;
+//       if (commentIndex !== -1 && data.comment) newRow[commentIndex] = data.comment;
+      
+//       // Добавляем новую строку в таблицу
+//       sheet.getRange(lastRow + 1, firstColumn, 1, numColumns).setValues([newRow]);
+      
+//     } else {
+//       // Альтернативный метод: ищем заголовки таблицы на листе
+//       const dataRange = sheet.getDataRange();
+//       const values = dataRange.getValues();
+      
+//       // Ищем строку с заголовками
+//       let headerRowIndex = -1;
+//       let headers = [];
+      
+//       for (let i = 0; i < values.length; i++) {
+//         if (values[i].includes('Дата') && values[i].includes('Категория') && values[i].includes('Сумма')) {
+//           headerRowIndex = i;
+//           headers = values[i];
+//           break;
+//         }
+//       }
+      
+//       if (headerRowIndex === -1) {
+//         throw new Error('Не найдена таблица с заголовками "Дата", "Категория", "Сумма"');
+//       }
+      
+//       // Находим индексы нужных столбцов
+//       const dateIndex = headers.indexOf('Дата');
+//       const categoryIndex = headers.indexOf('Категория');
+//       const amountIndex = headers.indexOf('Сумма');
+//       const monthIndex = headers.indexOf('Месяц');
+//       const commentIndex = headers.indexOf('Комментарий');
+      
+//       // Находим последнюю заполненную строку в таблице
+//       let lastDataRow = headerRowIndex + 1;
+//       for (let i = headerRowIndex + 1; i < values.length; i++) {
+//         // Проверяем, есть ли данные хотя бы в одном из основных столбцов
+//         if (values[i][dateIndex] || values[i][categoryIndex] || values[i][amountIndex]) {
+//           lastDataRow = i + 1; // +1 так как индексы в getRange начинаются с 1
+//         }
+//       }
+      
+//       // Создаем массив для новой строки
+//       const newRow = new Array(headers.length).fill('');
+      
+//       if (dateIndex !== -1) newRow[dateIndex] = currentDate;
+//       if (categoryIndex !== -1) newRow[categoryIndex] = data.category;
+//       if (amountIndex !== -1) newRow[amountIndex] = parseFloat(data.amount);
+//       if (monthIndex !== -1) newRow[monthIndex] = monthDate;
+//       if (commentIndex !== -1 && data.comment) newRow[commentIndex] = data.comment;
+      
+//       // Добавляем новую строку после последней заполненной
+//       sheet.getRange(lastDataRow + 1, 1, 1, headers.length).setValues([newRow]);
+//     }
+    
+//     // Возвращаем успешный результат
+//     const monthYearDisplay = data.month + ' ' + data.year;
+//     return {
+//       success: true,
+//       message: `✅ Запись успешно добавлена!\n📁 Категория: ${data.category}\n💰 Сумма: ${data.amount}₽\n📅 Период: ${monthYearDisplay}${data.comment ? '\n💬 Комментарий: ' + data.comment : ''}`
+//     };
+    
+//   } catch (error) {
+//     console.log('Ошибка при сохранении записи: ' + error.toString());
+//     return {
+//       success: false,
+//       message: 'Ошибка при сохранении: ' + error.toString()
+//     };
+//   }
+// }
+
+
+/**
+ * Альтернативная функция для вставки строки в таблицу
+ * Использует метод insertRowAfter для добавления строки внутрь таблицы
+ */
 function saveRecord(data) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName("Операции");
     
-    // Получаем активный лист для записи данных
-    const sheet = ss.getActiveSheet();
+    if (!sheet) {
+      throw new Error('Лист "Операции" не найден');
+    }
     
-    // Подготавливаем данные для записи
+    // Ищем таблицу по заголовкам
+    const dataRange = sheet.getDataRange();
+    const values = dataRange.getValues();
+    
+    let headerRow = -1;
+    let lastDataRow = -1;
+    
+    // Находим строку с заголовками
+    for (let i = 0; i < values.length; i++) {
+      if (values[i].includes('Дата') && values[i].includes('Категория')) {
+        headerRow = i + 1; // +1 для индекса строки в Sheet
+        
+        // Находим последнюю заполненную строку таблицы
+        for (let j = i + 1; j < values.length; j++) {
+          if (values[j].some(cell => cell !== '')) {
+            lastDataRow = j + 1;
+          } else {
+            break; // Прекращаем, если встретили полностью пустую строку
+          }
+        }
+        break;
+      }
+    }
+    
+    if (headerRow === -1) {
+      throw new Error('Таблица не найдена');
+    }
+    
+    // Если нет данных, добавляем после заголовка
+    if (lastDataRow === -1) {
+      lastDataRow = headerRow;
+    }
+    
+    // Вставляем новую строку после последней строки с данными
+    sheet.insertRowAfter(lastDataRow);
+    
+    // Подготавливаем данные
     const currentDate = new Date();
-    
-    // Преобразуем название месяца в число
     const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-    const monthNumber = monthNames.indexOf(data.month) + 1; // +1 потому что месяцы начинаются с 1
+    const monthNumber = monthNames.indexOf(data.month) + 1;
+    const monthDate = new Date(parseInt(data.year), monthNumber - 1, 1);
     
-    // Создаем дату в формате ДАТА(год;месяц;1)
-    const monthDate = new Date(parseInt(data.year), monthNumber - 1, 1); // -1 потому что в JavaScript месяцы начинаются с 0
+    // Получаем заголовки
+    const headers = sheet.getRange(headerRow, 1, 1, sheet.getLastColumn()).getValues()[0];
     
-    // Данные для новой строки: [Дата, Категория, Сумма, Месяц]
-    const newRow = [
-      currentDate,           // Дата - текущая дата
-      data.category,         // Категория - выбранная категория
-      parseFloat(data.amount), // Сумма - введенная сумма как число
-      monthDate             // Месяц - дата в формате ДАТА(год;месяц;1)
-    ];
+    // Создаем массив данных
+    const newRowData = [];
+    for (let i = 0; i < headers.length; i++) {
+      switch(headers[i]) {
+        case 'Дата':
+          newRowData.push(currentDate);
+          break;
+        case 'Категория':
+          newRowData.push(data.category);
+          break;
+        case 'Сумма':
+          newRowData.push(parseFloat(data.amount));
+          break;
+        case 'Месяц':
+          newRowData.push(monthDate);
+          break;
+        case 'Комментарий':
+          newRowData.push(data.comment || '');
+          break;
+        default:
+          newRowData.push('');
+      }
+    }
     
-    // Находим последнюю строку с данными
-    const lastRow = sheet.getLastRow();
+    // Записываем данные в новую строку
+    sheet.getRange(lastDataRow + 1, 1, 1, newRowData.length).setValues([newRowData]);
     
-    // Добавляем новую строку после последней заполненной
-    const targetRow = lastRow + 1;
-    
-    // Записываем данные в строку (предполагаем, что данные начинаются с колонки A)
-    sheet.getRange(targetRow, 1, 1, 4).setValues([newRow]);
-    
-    // Возвращаем успешный результат
-    const monthYearDisplay = data.month + ' ' + data.year;
     return {
       success: true,
-      message: `Запись успешно добавлена!\nКатегория: ${data.category}\nСумма: ${data.amount}₽\nПериод: ${monthYearDisplay}${data.comment ? '\nКомментарий: ' + data.comment : ''}`
+      message: `✅ Запись добавлена в таблицу!`
     };
     
   } catch (error) {
-    console.log('Ошибка при сохранении записи: ' + error.toString());
     return {
       success: false,
-      message: 'Ошибка при сохранении: ' + error.toString()
+      message: 'Ошибка: ' + error.toString()
     };
   }
 }
