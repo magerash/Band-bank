@@ -5,191 +5,370 @@
   <meta charset="utf-8">
   <title>Добавить запись</title>
   <style>
-    body {
-      font-family: 'Google Sans', Arial, sans-serif;
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
-      background-color: #f8f9fa;
     }
-    
+
     .container {
-      max-width: 750px;
-      background: white;
-      border-radius: 8px;
-      padding: 24px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.4s ease-out;
     }
-    
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      animation: fadeIn 0.5s ease-out forwards;
+      opacity: 0;
     }
-    
+
+    .form-group:nth-child(1) { animation-delay: 0.1s; }
+    .form-group:nth-child(2) { animation-delay: 0.2s; }
+    .form-group:nth-child(3) { animation-delay: 0.3s; }
+    .form-group:nth-child(4) { animation-delay: 0.4s; }
+    .form-group:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
     label {
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
-      color: #333;
+      color: #4a4a5e;
       font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    
+
     select, input[type="number"], input[type="text"], textarea {
       width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 14px;
-      box-sizing: border-box;
-      transition: border-color 0.3s;
+      padding: 14px 16px;
+      border: 2px solid transparent;
+      background: #f7f7fc;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      color: #1a1a2e;
     }
-    
+
     select:focus, input:focus, textarea:focus {
       outline: none;
-      border-color: #4285f4;
+      background: white;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
     }
-    
-    .year-input {
-      width: 100px;
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a4a5e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 20px;
+      padding-right: 40px;
     }
-    
+
+    .year-month-row {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 16px;
+    }
+
     .amount-group {
       position: relative;
     }
-    
+
     .amount-group input {
-      padding-right: 30px;
+      padding-left: 35px;
+      font-weight: 600;
+      font-size: 18px;
     }
-    
+
     .currency {
       position: absolute;
-      right: 12px;
+      left: 16px;
       top: 50%;
       transform: translateY(-50%);
-      color: #666;
-      font-weight: 500;
+      color: #667eea;
+      font-weight: 600;
+      font-size: 18px;
     }
-    
+
     .help-text {
       font-size: 12px;
-      color: #666;
-      margin-top: 5px;
-      line-height: 1.4;
+      color: #8989a2;
+      margin-top: 6px;
+      line-height: 1.5;
     }
-    
-    .button-group {
+
+    .paid-months-info {
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-top: 8px;
+      display: none;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        max-height: 0;
+      }
+      to {
+        opacity: 1;
+        max-height: 200px;
+      }
+    }
+
+    .paid-months-info.show {
+      display: block;
+    }
+
+    .paid-months-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .paid-months-list {
       display: flex;
-      gap: 12px;
-      margin-top: 24px;
+      flex-wrap: wrap;
+      gap: 6px;
     }
-    
-    .btn {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
+
+    .paid-month-tag {
+      background: white;
+      color: #4a4a5e;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
       font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .no-payments {
+      font-size: 12px;
+      color: #8989a2;
+      font-style: italic;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s;
-      flex: 1;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    
+
     .btn-primary {
-      background-color: #4285f4;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
-    
+
     .btn-primary:hover {
-      background-color: #3367d6;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
-    
+
     .btn-secondary {
-      background-color: #f1f3f4;
-      color: #333;
+      background: #f7f7fc;
+      color: #4a4a5e;
     }
-    
+
     .btn-secondary:hover {
-      background-color: #e8eaed;
+      background: #ececf4;
     }
-    
+
     .btn:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
+      transform: none !important;
     }
-    
+
     .loading {
       display: none;
       text-align: center;
-      color: #666;
-      font-style: italic;
+      padding: 40px;
     }
-    
-    .error {
-      color: #d93025;
-      font-size: 12px;
-      margin-top: 5px;
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f7f7fc;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
     }
-    
-    textarea {
-      resize: vertical;
-      min-height: 60px;
-      font-family: inherit;
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
-    
-    h2 {
-      margin: 0 0 20px 0;
-      color: #333;
-      font-size: 18px;
+
+    .loading-text {
+      color: #4a4a5e;
       font-weight: 500;
+    }
+
+    .success-animation {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .success-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .success-icon::after {
+      content: '✓';
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>💰 Добавить новую запись</h2>
-    
+    <h2>Добавить запись</h2>
+
     <form id="recordForm">
       <div class="form-group">
-        <label for="category">Категория:</label>
-        <select id="category" name="category" required>
+        <label for="category">Категория</label>
+        <select id="category" name="category" required onchange="updatePaidMonths()">
           <option value="">Выберите категорию...</option>
         </select>
+        <div id="paidMonthsInfo" class="paid-months-info">
+          <div class="paid-months-title">Оплаченные месяцы:</div>
+          <div id="paidMonthsList" class="paid-months-list"></div>
+        </div>
       </div>
-      
+
       <div class="form-group">
-        <label for="month">Месяц:</label>
-        <select id="month" name="month" required>
-          <option value="">Выберите месяц...</option>
-        </select>
+        <div class="year-month-row">
+          <div>
+            <label for="month">Месяц</label>
+            <select id="month" name="month" required>
+              <option value="">Выберите месяц...</option>
+            </select>
+          </div>
+          <div>
+            <label for="year">Год</label>
+            <input type="number" id="year" name="year" required>
+          </div>
+        </div>
       </div>
-      
+
       <div class="form-group">
-        <label for="year">Год:</label>
-        <input type="number" id="year" name="year" class="year-input" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="amount">Какую сумму вы хотите внести?</label>
+        <label for="amount">Сумма платежа</label>
         <div class="amount-group">
-          <input type="number" id="amount" name="amount" min="0" step="0.01" value="1000" required>
           <span class="currency">₽</span>
+          <input type="number" id="amount" name="amount" min="0" step="0.01" value="1000" required>
         </div>
         <div class="help-text">
-          Если это месячный платеж, вносите 1000₽ за раз. Оплатить можете больше, но вызовите данное окно и сохраните столько раз, за сколько месяцев вносите платеж. Один месяц - одна запись, для чистоты данных.
+          Стандартный платеж — 1000₽. Для оплаты за несколько месяцев создайте отдельные записи.
         </div>
       </div>
-      
+
       <div class="form-group">
-        <label for="comment">Комментарии (необязательно):</label>
-        <textarea id="comment" name="comment" placeholder="Дополнительные заметки..."></textarea>
+        <label for="comment">Комментарий</label>
+        <textarea id="comment" name="comment" placeholder="Дополнительная информация (необязательно)"></textarea>
       </div>
-      
+
       <div class="button-group">
         <button type="button" class="btn btn-secondary" onclick="closeDialog()">Отмена</button>
-        <button type="submit" class="btn btn-primary" id="saveBtn">💾 Сохранить</button>
+        <button type="submit" class="btn btn-primary" id="saveBtn">Сохранить</button>
       </div>
     </form>
-    
+
     <div class="loading" id="loading">
-      Сохранение записи...
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Сохранение записи...</div>
+    </div>
+
+    <div class="success-animation" id="successAnimation">
+      <div class="success-icon"></div>
+      <div class="loading-text">Запись успешно добавлена!</div>
     </div>
   </div>
 
@@ -200,7 +379,7 @@
       loadMonths();
       setCurrentYear();
     };
-    
+
     // Загрузка категорий
     function loadCategories() {
       google.script.run
@@ -219,16 +398,24 @@
         })
         .getCategories();
     }
-    
+
     // Загрузка месяцев
     function loadMonths() {
       google.script.run
         .withSuccessHandler(function(months) {
           const select = document.getElementById('month');
-          months.forEach(function(month) {
+          const currentMonth = new Date().getMonth();
+          
+          months.forEach(function(month, index) {
             const option = document.createElement('option');
             option.value = month;
             option.textContent = month.charAt(0).toUpperCase() + month.slice(1);
+            
+            // Выбираем текущий месяц по умолчанию
+            if (index === currentMonth) {
+              option.selected = true;
+            }
+            
             select.appendChild(option);
           });
         })
@@ -237,7 +424,7 @@
         })
         .getMonths();
     }
-    
+
     // Установка текущего года
     function setCurrentYear() {
       google.script.run
@@ -246,11 +433,41 @@
         })
         .getCurrentYear();
     }
-    
+
+    // Обновление информации об оплаченных месяцах
+    function updatePaidMonths() {
+      const category = document.getElementById('category').value;
+      const infoDiv = document.getElementById('paidMonthsInfo');
+      const listDiv = document.getElementById('paidMonthsList');
+      
+      if (!category) {
+        infoDiv.classList.remove('show');
+        return;
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(paidMonths) {
+          if (paidMonths && paidMonths.length > 0) {
+            listDiv.innerHTML = paidMonths.map(month => 
+              `<span class="paid-month-tag">${month}</span>`
+            ).join('');
+          } else {
+            listDiv.innerHTML = '<span class="no-payments">Нет оплаченных месяцев</span>';
+          }
+          infoDiv.classList.add('show');
+        })
+        .withFailureHandler(function(error) {
+          console.error('Ошибка загрузки оплаченных месяцев:', error);
+          listDiv.innerHTML = '<span class="no-payments">Ошибка загрузки</span>';
+          infoDiv.classList.add('show');
+        })
+        .getPaidMonths(category);
+    }
+
     // Обработка отправки формы
     document.getElementById('recordForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      
+
       const formData = new FormData(e.target);
       const data = {
         category: formData.get('category'),
@@ -259,29 +476,28 @@
         amount: formData.get('amount'),
         comment: formData.get('comment') || ''
       };
-      
+
       // Валидация
       if (!data.category || !data.month || !data.year || !data.amount) {
         alert('Пожалуйста, заполните все обязательные поля');
         return;
       }
-      
+
       if (parseFloat(data.amount) <= 0) {
         alert('Сумма должна быть больше нуля');
         return;
       }
-      
+
       // Показать индикатор загрузки
       showLoading(true);
-      
+
       // Отправка данных на сервер
       google.script.run
         .withSuccessHandler(function(result) {
-          showLoading(false);
           if (result.success) {
-            alert(result.message);
-            google.script.host.close();
+            showSuccess(result.message);
           } else {
+            showLoading(false);
             alert('Ошибка: ' + result.message);
           }
         })
@@ -291,13 +507,13 @@
         })
         .saveRecord(data);
     });
-    
+
     // Показать/скрыть индикатор загрузки
     function showLoading(show) {
       const form = document.getElementById('recordForm');
       const loading = document.getElementById('loading');
       const saveBtn = document.getElementById('saveBtn');
-      
+
       if (show) {
         form.style.display = 'none';
         loading.style.display = 'block';
@@ -308,7 +524,20 @@
         saveBtn.disabled = false;
       }
     }
-    
+
+    // Показать успешное сохранение
+    function showSuccess(message) {
+      const loading = document.getElementById('loading');
+      const success = document.getElementById('successAnimation');
+      
+      loading.style.display = 'none';
+      success.style.display = 'block';
+      
+      setTimeout(function() {
+        google.script.host.close();
+      }, 1500);
+    }
+
     // Закрыть диалог
     function closeDialog() {
       google.script.host.close();

@@ -69,133 +69,6 @@ function getCurrentYear() {
  */
 /**
  * Сохранить новую запись в таблицу Банк_группы на листе Операции
- */
-// function saveRecord(data) {
-//   try {
-//     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    
-//     // Получаем лист "Операции"
-//     const sheet = ss.getSheetByName("Операции");
-//     if (!sheet) {
-//       throw new Error('Лист "Операции" не найден');
-//     }
-    
-//     // Подготавливаем данные для записи
-//     const currentDate = new Date();
-    
-//     // Преобразуем название месяца в число
-//     const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-//     const monthNumber = monthNames.indexOf(data.month) + 1;
-    
-//     // Создаем дату для месяца
-//     const monthDate = new Date(parseInt(data.year), monthNumber - 1, 1);
-    
-//     // Попробуем найти таблицу "Банк_группы" через именованный диапазон
-//     let tableRange;
-//     try {
-//       tableRange = ss.getRangeByName("Банк_группы");
-//     } catch (e) {
-//       // Если именованный диапазон не найден, ищем таблицу вручную
-//       console.log('Именованный диапазон "Банк_группы" не найден, ищем заголовки таблицы');
-//     }
-    
-//     if (tableRange) {
-//       // Работаем с именованным диапазоном как с таблицей
-//       const lastRow = tableRange.getLastRow();
-//       const firstColumn = tableRange.getColumn();
-//       const numColumns = tableRange.getNumColumns();
-      
-//       // Получаем заголовки для определения порядка столбцов
-//       const headers = sheet.getRange(tableRange.getRow(), firstColumn, 1, numColumns).getValues()[0];
-      
-//       // Находим индексы нужных столбцов
-//       const dateIndex = headers.indexOf('Дата');
-//       const categoryIndex = headers.indexOf('Категория');
-//       const amountIndex = headers.indexOf('Сумма');
-//       const monthIndex = headers.indexOf('Месяц');
-//       const commentIndex = headers.indexOf('Комментарий');
-      
-//       // Создаем массив для новой строки
-//       const newRow = new Array(numColumns).fill('');
-      
-//       if (dateIndex !== -1) newRow[dateIndex] = currentDate;
-//       if (categoryIndex !== -1) newRow[categoryIndex] = data.category;
-//       if (amountIndex !== -1) newRow[amountIndex] = parseFloat(data.amount);
-//       if (monthIndex !== -1) newRow[monthIndex] = monthDate;
-//       if (commentIndex !== -1 && data.comment) newRow[commentIndex] = data.comment;
-      
-//       // Добавляем новую строку в таблицу
-//       sheet.getRange(lastRow + 1, firstColumn, 1, numColumns).setValues([newRow]);
-      
-//     } else {
-//       // Альтернативный метод: ищем заголовки таблицы на листе
-//       const dataRange = sheet.getDataRange();
-//       const values = dataRange.getValues();
-      
-//       // Ищем строку с заголовками
-//       let headerRowIndex = -1;
-//       let headers = [];
-      
-//       for (let i = 0; i < values.length; i++) {
-//         if (values[i].includes('Дата') && values[i].includes('Категория') && values[i].includes('Сумма')) {
-//           headerRowIndex = i;
-//           headers = values[i];
-//           break;
-//         }
-//       }
-      
-//       if (headerRowIndex === -1) {
-//         throw new Error('Не найдена таблица с заголовками "Дата", "Категория", "Сумма"');
-//       }
-      
-//       // Находим индексы нужных столбцов
-//       const dateIndex = headers.indexOf('Дата');
-//       const categoryIndex = headers.indexOf('Категория');
-//       const amountIndex = headers.indexOf('Сумма');
-//       const monthIndex = headers.indexOf('Месяц');
-//       const commentIndex = headers.indexOf('Комментарий');
-      
-//       // Находим последнюю заполненную строку в таблице
-//       let lastDataRow = headerRowIndex + 1;
-//       for (let i = headerRowIndex + 1; i < values.length; i++) {
-//         // Проверяем, есть ли данные хотя бы в одном из основных столбцов
-//         if (values[i][dateIndex] || values[i][categoryIndex] || values[i][amountIndex]) {
-//           lastDataRow = i + 1; // +1 так как индексы в getRange начинаются с 1
-//         }
-//       }
-      
-//       // Создаем массив для новой строки
-//       const newRow = new Array(headers.length).fill('');
-      
-//       if (dateIndex !== -1) newRow[dateIndex] = currentDate;
-//       if (categoryIndex !== -1) newRow[categoryIndex] = data.category;
-//       if (amountIndex !== -1) newRow[amountIndex] = parseFloat(data.amount);
-//       if (monthIndex !== -1) newRow[monthIndex] = monthDate;
-//       if (commentIndex !== -1 && data.comment) newRow[commentIndex] = data.comment;
-      
-//       // Добавляем новую строку после последней заполненной
-//       sheet.getRange(lastDataRow + 1, 1, 1, headers.length).setValues([newRow]);
-//     }
-    
-//     // Возвращаем успешный результат
-//     const monthYearDisplay = data.month + ' ' + data.year;
-//     return {
-//       success: true,
-//       message: `✅ Запись успешно добавлена!\n📁 Категория: ${data.category}\n💰 Сумма: ${data.amount}₽\n📅 Период: ${monthYearDisplay}${data.comment ? '\n💬 Комментарий: ' + data.comment : ''}`
-//     };
-    
-//   } catch (error) {
-//     console.log('Ошибка при сохранении записи: ' + error.toString());
-//     return {
-//       success: false,
-//       message: 'Ошибка при сохранении: ' + error.toString()
-//     };
-//   }
-// }
-
-
-/**
- * Альтернативная функция для вставки строки в таблицу
  * Использует метод insertRowAfter для добавления строки внутрь таблицы
  */
 function saveRecord(data) {
@@ -297,4 +170,89 @@ function saveRecord(data) {
  */
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+/**
+ * Получить список оплаченных месяцев для категории
+ */
+function getPaidMonths(category) {
+  try {
+    if (!category) {
+      return [];
+    }
+    
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName("Операции");
+    
+    if (!sheet) {
+      console.log('Лист "Операции" не найден');
+      return [];
+    }
+    
+    // Получаем все данные с листа
+    const dataRange = sheet.getDataRange();
+    const values = dataRange.getValues();
+    
+    // Находим строку с заголовками
+    let headerRow = -1;
+    let categoryCol = -1;
+    let monthCol = -1;
+    
+    for (let i = 0; i < values.length; i++) {
+      const row = values[i];
+      const catIndex = row.indexOf('Категория');
+      const monthIndex = row.indexOf('Месяц');
+      
+      if (catIndex !== -1 && monthIndex !== -1) {
+        headerRow = i;
+        categoryCol = catIndex;
+        monthCol = monthIndex;
+        break;
+      }
+    }
+    
+    if (headerRow === -1) {
+      console.log('Заголовки таблицы не найдены');
+      return [];
+    }
+    
+    // Собираем оплаченные месяцы для выбранной категории
+    const paidMonths = [];
+    const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+    
+    for (let i = headerRow + 1; i < values.length; i++) {
+      const row = values[i];
+      
+      // Проверяем, совпадает ли категория
+      if (row[categoryCol] === category && row[monthCol]) {
+        // Преобразуем дату в строку месяц-год
+        const monthDate = new Date(row[monthCol]);
+        if (!isNaN(monthDate.getTime())) {
+          const month = monthNames[monthDate.getMonth()];
+          const year = monthDate.getFullYear();
+          const monthYearStr = `${month} ${year}`;
+          
+          // Добавляем, если еще нет в списке
+          if (!paidMonths.includes(monthYearStr)) {
+            paidMonths.push(monthYearStr);
+          }
+        }
+      }
+    }
+    
+    // Сортируем по дате (сначала преобразуем обратно в даты для правильной сортировки)
+    paidMonths.sort((a, b) => {
+      const [monthA, yearA] = a.split(' ');
+      const [monthB, yearB] = b.split(' ');
+      const dateA = new Date(parseInt(yearA), monthNames.indexOf(monthA));
+      const dateB = new Date(parseInt(yearB), monthNames.indexOf(monthB));
+      return dateB - dateA; // Сортировка от новых к старым
+    });
+    
+    return paidMonths;
+    
+  } catch (error) {
+    console.log('Ошибка при получении оплаченных месяцев: ' + error.toString());
+    return [];
+  }
 }
